@@ -253,8 +253,7 @@ export async function readGdFolder(folderId: string, deep: boolean = false): Pro
 export async function createIfNotExistsFolder(parentId: string, name: string): Promise<Folder$GDrive> {
     const exists = await list$Files({
         q: `'${parentId}' in parents and name = '${name}' and mimeType = '${MimeType.G_FOLDER}'`,
-        fields: Folder$GDrive.REQUIRED_FIELDS
-    });
+    }, true);
     if (exists.files.length > 0) {
         return new Folder$GDrive(exists.files[0]);
     } else {
