@@ -1,7 +1,7 @@
 {
   "name": "raspi-file-manager",
   "version": "1.0.0",
-  "description": "A server for moving motion cam files from Raspberry Pie to Google Drive. Allows to receive and process repeat functions and events.",
+  "description": "A server for moving motion cam files from Raspberry Pi to Google Drive. Allows to receive and process repeat functions and events.",
   "main": "index.js",
   "license": "MIT",
   "author": {
