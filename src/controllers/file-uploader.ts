@@ -40,6 +40,9 @@ export async function uploadSourceFilesToGoogleDrive(sourcePath?: string, rootFo
 
                 const leafFolder = await createFoldersInGoogleDrive(tempPath.join("/"), rootFolderId);
                 await createGdFileMedia({ name: fileName, fsPath: file.fsPath, folderId: leafFolder.id });
+
+                // TODO(dean): backup files to other disks
+                await file.delete();
             }
         }
         lock_upload_files = false;
@@ -58,6 +61,11 @@ async function createFoldersInGoogleDrive(slashPath: string, rootFolderId?: stri
     }
 
     return leaf;
+}
+
+function backupLocalFile(sourcePath: string): Promise<void> {
+    return new Promise((resolve, reject) => {
+    });
 }
 
 function startBatchProcesses() {
