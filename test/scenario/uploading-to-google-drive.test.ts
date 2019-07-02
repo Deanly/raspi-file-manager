@@ -3,11 +3,13 @@ import * as fs from "fs";
 import * as rimraf from "rimraf";
 import * as path from "path";
 import { readFsFolder } from "../../src/models/folder";
-import { init, uploadSourceFilesToGoogleDrive } from "../../src/controllers/file-uploader";
+import { init, uploadSourceFilesToGoogleDrive, targetFolderId } from "../../src/controllers/file-uploader";
+import { createFolder, delete$Files } from "../../src/helpers/google-apis/google-drive";
+import { drive_v3 } from "googleapis";
 
 const sourceLocalFolderPath = path.normalize(path.join(__dirname, "..", "dummy"));
-const firstFilePath = path.join(sourceLocalFolderPath, "0-92-20190624090104.mkv");
-const secondFilePath = path.join(sourceLocalFolderPath, "0-92-20190625144850.mkv");
+const firstFilePath = path.join(sourceLocalFolderPath, "0-92-19880315030104.mkv");
+const secondFilePath = path.join(sourceLocalFolderPath, "0-93-20100625144850.mkv");
 
 
 describe("Getting detected when creating new files", () => {
@@ -31,13 +33,14 @@ describe("Getting detected when creating new files", () => {
     });
 });
 
+let testGoogleFolder: drive_v3.Schema$File;
+
 describe("Firing trigger module test", () => {
     it("Getting upload source files to google-drive", async () => {
         await init();
-        console.log("Test")
-        await uploadSourceFilesToGoogleDrive(sourceLocalFolderPath);
-    });
-
+        testGoogleFolder = await createFolder("test", targetFolderId);
+        await uploadSourceFilesToGoogleDrive(sourceLocalFolderPath, testGoogleFolder.id);
+    }, 60000);
 });
 
 
@@ -61,8 +64,14 @@ describe("Cleaning up files in locally", () => {
     });
 });
 
-describe.skip("Deleting files from Google Drive", () => {
-    it("Delete files expired only");
+describe("Getting Delete files from Google Drive", () => {
+    it.skip("Delete files expired only", () => {
 
-    it("Delete all test files");
+    });
+
+    it("Delete all test files", async () => {
+        await delete$Files({
+            fileId: testGoogleFolder.id
+        });
+    });
 });

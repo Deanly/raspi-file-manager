@@ -36,8 +36,6 @@ export class FileNameParser {
                 }
             });
         });
-
-        console.log(this._cards);
     }
 
     get length() {

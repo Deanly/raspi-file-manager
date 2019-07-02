@@ -1,6 +1,6 @@
 import { FileNameParser } from "../helpers/file-name-parser";
 import { list$Files, get$Files } from "../helpers/google-apis/google-drive";
-import { readFsFile, File$Fs } from "../models/file";
+import { readFsFile, File$Fs, createGdFileMedia } from "../models/file";
 import { readFsFolder, createIfNotExistsFolder, Folder$GDrive } from "../models/folder";
 
 // google
@@ -22,8 +22,8 @@ interface InitializeParamOptions {
 
 let lock_upload_files = false;
 
-export async function uploadSourceFilesToGoogleDrive(sourcePath: string): Promise<File$Fs> {
-    const folder = await readFsFolder(sourcePath);
+export async function uploadSourceFilesToGoogleDrive(sourcePath?: string, rootFolderId?: string): Promise<void> {
+    const folder = await readFsFolder(sourcePath || sourceFolderPath);
 
     if (folder.count > 0) {
         if (lock_upload_files) return;
@@ -36,9 +36,10 @@ export async function uploadSourceFilesToGoogleDrive(sourcePath: string): Promis
                 const filePath = Object.keys(nameData)
                     .reduce((acc, key) => acc.replace(new RegExp(key, "g"), nameData[key]), targetFilePathFormat);
                 const tempPath = filePath.split("/");
-                tempPath.pop();
+                const fileName = tempPath.pop();
 
-                await createFoldersInGoogleDrive(tempPath.join("/"), targetFolderId);
+                const leafFolder = await createFoldersInGoogleDrive(tempPath.join("/"), rootFolderId);
+                await createGdFileMedia({ name: fileName, fsPath: file.fsPath, folderId: leafFolder.id });
             }
         }
         lock_upload_files = false;
@@ -59,8 +60,8 @@ async function createFoldersInGoogleDrive(slashPath: string, rootFolderId?: stri
     return leaf;
 }
 
-async function upload (): Promise<void> {
-
+function startBatchProcesses() {
+    setInterval(uploadSourceFilesToGoogleDrive, 5000);
 }
 
 export async function init(options: InitializeParamOptions = {}): Promise<void> {
@@ -90,4 +91,6 @@ export async function init(options: InitializeParamOptions = {}): Promise<void> 
     fileNameParser = new FileNameParser(
         options.sourceFileNameSeparator || process.env.SOURCE_FILE_NAME_SEPARATORS,
         options.sourceFileNameFormat || process.env.SOURCE_FILE_NAME_FORMAT);
+
+    startBatchProcesses();
 }

@@ -3,7 +3,7 @@ import { JWT, Credentials } from "google-auth-library";
 import { GaxiosResponse } from "gaxios";
 import { setTimeoutPromise } from "../utils";
 
-const SCOPES = ['https://www.googleapis.com/auth/drive'];
+const SCOPES = ["https://www.googleapis.com/auth/drive"];
 
 
 export const MimeType = {
