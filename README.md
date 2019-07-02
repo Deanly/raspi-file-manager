@@ -26,5 +26,6 @@ A server for moving motion cam files from Raspberry Pi to Google Drive. Allows t
 2) Start
     ``` bash
     $ npm i
+    $ npm run build
     $ npm run start
     ```
