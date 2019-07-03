@@ -45,7 +45,7 @@ export async function uploadSourceFilesToGoogleDrive(sourcePath?: string, rootFo
 
             // TODO(dean): backup files to other disks
             await file.delete();
-            logger.info(`[FILE][UP]${file.basename}, ${file.bytes}bytes`);
+            logger.info({ message: "Upload Successful", meta: { filename: file.basename, bytes: file.bytes }});
         } else {
             upload_file_index++;
         }
