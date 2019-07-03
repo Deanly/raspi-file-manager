@@ -4,10 +4,15 @@ import bodyParser from "body-parser";
 import lusca from "lusca";
 import dotenv from "dotenv";
 import path from "path";
+import fs from "fs";
 
 import { init as initFileUploader } from "./controllers/file-uploader";
 
-dotenv.config({ path: ".env" });
+const envPath = process.argv[2] || ".env";
+
+fs.accessSync(envPath, fs.constants.R_OK);
+
+dotenv.config({ path: envPath });
 
 const app = express();
 
