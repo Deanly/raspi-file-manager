@@ -3,6 +3,8 @@ import { list$Files, get$Files } from "../helpers/google-apis/google-drive";
 import { readFsFile, File$Fs, createGdFileMedia } from "../models/file";
 import { readFsFolder, createIfNotExistsFolder, Folder$GDrive, readFsOneFileInFolder } from "../models/folder";
 
+import winston from "winston";
+
 // google
 export let targetFolderId: string;
 export let targetFilePathFormat: string;
@@ -44,6 +46,7 @@ export async function uploadSourceFilesToGoogleDrive(sourcePath?: string, rootFo
 
             // TODO(dean): backup files to other disks
             await file.delete();
+            winston.info(`[FILE][UP]${file.basename}, ${file.bytes}bytes`);
         } else {
             upload_file_index++;
         }

@@ -98,7 +98,6 @@ describe.skip("Getting Authorized to service account", () => {
         } catch (e) {
             return assert.ok(e.code === 404);
         }
-        console.log(temp_f)
         assert.ok(!temp_f);
     }, 10000);
 });
