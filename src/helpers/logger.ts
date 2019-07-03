@@ -1,7 +1,12 @@
-import winston from "winston";
+import { format, transports, createLogger } from "winston";
+const { combine, timestamp, label, prettyPrint } = format;
 
-export const logger = winston.createLogger({
+export const logger = createLogger({
+    format: combine(
+        timestamp(),
+        prettyPrint()
+    ),
     transports: [
-      new winston.transports.Console()
+      new transports.Console()
     ]
 });
