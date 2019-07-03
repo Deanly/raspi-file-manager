@@ -90,6 +90,23 @@ async function fs_statSync(p: string): Promise<fs.Stats> {
     });
 }
 
+export async function readFsOneFileInFolder(folderPath: string, index: number = 0): Promise<File$Fs | void> {
+    return new Promise((resolve, reject) => {
+        console.log("readdir", folderPath)
+        fs.readdir(folderPath, async (err, namesList) => {
+            if (err) return reject(err);
+
+            if (namesList.length > 0) {
+                const itemPath = path.join(folderPath, namesList[index % namesList.length]);
+                const itemStat = await fs_statSync(itemPath);
+                resolve(new File$Fs(itemPath, itemStat));
+            } else {
+                resolve(void 0);
+            }
+        });
+    });
+}
+
 export async function readFsFolder(folderPath: string): Promise<Folder$Fs> {
     return new Promise((resolve, reject) => {
         fs.stat(folderPath, (err, stats) => {

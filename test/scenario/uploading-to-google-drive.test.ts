@@ -37,7 +37,7 @@ let testGoogleFolder: drive_v3.Schema$File;
 
 describe("Firing trigger module test", () => {
     it("Getting upload source files to google-drive", async () => {
-        await init();
+        await init({  disableBatch: true });
         testGoogleFolder = await createFolder("test", targetFolderId);
         await uploadSourceFilesToGoogleDrive(sourceLocalFolderPath, testGoogleFolder.id);
     }, 60000);
