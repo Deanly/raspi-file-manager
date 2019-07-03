@@ -92,7 +92,6 @@ async function fs_statSync(p: string): Promise<fs.Stats> {
 
 export async function readFsOneFileInFolder(folderPath: string, index: number = 0): Promise<File$Fs | void> {
     return new Promise((resolve, reject) => {
-        console.log("readdir", folderPath)
         fs.readdir(folderPath, async (err, namesList) => {
             if (err) return reject(err);
 
