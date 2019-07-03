@@ -1,7 +1,7 @@
 import { FileNameParser } from "../helpers/file-name-parser";
 import { list$Files, get$Files } from "../helpers/google-apis/google-drive";
 import { readFsFile, File$Fs, createGdFileMedia } from "../models/file";
-import { readFsFolder, createIfNotExistsFolder, Folder$GDrive } from "../models/folder";
+import { readFsFolder, createIfNotExistsFolder, Folder$GDrive, readFsOneFileInFolder } from "../models/folder";
 
 // google
 export let targetFolderId: string;
@@ -18,33 +18,36 @@ interface InitializeParamOptions {
     googleRootFolderNameForUploading?: string;
     googleRootFolderIdForUploading?: string;
     googleFilePathFormatForUploading?: string;
+    disableBatch?: boolean;
 }
 
 let lock_upload_files = false;
+let upload_file_index = 0;
 
 export async function uploadSourceFilesToGoogleDrive(sourcePath?: string, rootFolderId?: string): Promise<void> {
-    const folder = await readFsFolder(sourcePath || sourceFolderPath);
+    const file = await readFsOneFileInFolder(sourcePath || sourceFolderPath, upload_file_index);
 
-    if (folder.count > 0) {
+    if (file) {
         if (lock_upload_files) return;
         lock_upload_files = true;
         const timeout = setTimeout(() => { lock_upload_files = false; }, 60000);
 
-        for (const file of folder.child) {
-            if (file instanceof File$Fs) {
-                const nameData = fileNameParser.parse(file.basename, true);
-                const filePath = Object.keys(nameData)
-                    .reduce((acc, key) => acc.replace(new RegExp(key, "g"), nameData[key]), targetFilePathFormat);
-                const tempPath = filePath.split("/");
-                const fileName = tempPath.pop();
+        if (file instanceof File$Fs) {
+            const nameData = fileNameParser.parse(file.basename, true);
+            const filePath = Object.keys(nameData)
+                .reduce((acc, key) => acc.replace(new RegExp(key, "g"), nameData[key]), targetFilePathFormat);
+            const tempPath = filePath.split("/");
+            const fileName = tempPath.pop();
 
-                const leafFolder = await createFoldersInGoogleDrive(tempPath.join("/"), rootFolderId);
-                await createGdFileMedia({ name: fileName, fsPath: file.fsPath, folderId: leafFolder.id });
+            const leafFolder = await createFoldersInGoogleDrive(tempPath.join("/"), rootFolderId);
+            await createGdFileMedia({ name: fileName, fsPath: file.fsPath, folderId: leafFolder.id });
 
-                // TODO(dean): backup files to other disks
-                await file.delete();
-            }
+            // TODO(dean): backup files to other disks
+            await file.delete();
+        } else {
+            upload_file_index++;
         }
+
         lock_upload_files = false;
         clearTimeout(timeout);
     }
@@ -100,5 +103,5 @@ export async function init(options: InitializeParamOptions = {}): Promise<void> 
         options.sourceFileNameSeparator || process.env.SOURCE_FILE_NAME_SEPARATORS,
         options.sourceFileNameFormat || process.env.SOURCE_FILE_NAME_FORMAT);
 
-    startBatchProcesses();
+    if (!options.disableBatch) startBatchProcesses();
 }

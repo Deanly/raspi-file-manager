@@ -74,6 +74,7 @@ export class File$Fs implements File {
 
     delete(): Promise<void> {
         return new Promise((resolve, reject) => {
+            console.log("detete,", this.fsPath);
             fs.unlink(this.fsPath, (err) => {
                 if (err) return reject(err);
                 resolve(void 0);
