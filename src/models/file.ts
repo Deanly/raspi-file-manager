@@ -2,7 +2,6 @@ import { delete$Files, get$Files, update$Files, create$Files } from "../helpers/
 import { drive_v3 } from "googleapis";
 import * as fs from "fs";
 import * as path from "path";
-import * as rimraf from "rimraf";
 
 const MIME_TYPES = {
     ".mkv": "video/x-matroska",
@@ -74,7 +73,12 @@ export class File$Fs implements File {
     }
 
     delete(): Promise<void> {
-        return rimraf.__promisify__(this.fsPath);
+        return new Promise((resolve, reject) => {
+            fs.unlink(this.fsPath, (err) => {
+                if (err) return reject(err);
+                resolve(void 0);
+            });
+        });
     }
 }
 
